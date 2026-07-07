@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plume - Prospection de Concerts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Calibri', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #2C3E50;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 32px;
+            color: #2C3E50;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: #7F8C8D;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 15px 20px;
+            background: #ECF0F1;
+            border-radius: 6px;
+            min-width: 120px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #7F8C8D;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2C3E50;
+        }
+
+        nav {
+            background: white;
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        nav li {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        nav a {
+            display: block;
+            padding: 16px 20px;
+            text-decoration: none;
+            color: #2C3E50;
+            font-weight: 500;
+            border-right: 1px solid #ECF0F1;
+            transition: all 0.3s;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        nav li:last-child a {
+            border-right: none;
+        }
+
+        nav a:hover, nav a.active {
+            background: #2C3E50;
+            color: white;
+        }
+
+        .content {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background: #2C3E50;
+            color: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ECF0F1;
+        }
+
+        tbody tr:hover {
+            background: #F8F9FA;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #F8F9FA;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #27AE60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #229954;
+        }
+
+        .btn-secondary {
+            background: #3498DB;
+        }
+
+        .btn-secondary:hover {
+            background: #2980B9;
+        }
+
+        .btn-danger {
+            background: #E74C3C;
+        }
+
+        .btn-danger:hover {
+            background: #C0392B;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #2C3E50;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #BDC3C7;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498DB;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+        }
+
+        .status-confirmed {
+            background: #27AE60;
+        }
+
+        .status-pending {
+            background: #F39C12;
+        }
+
+        .status-test {
+            background: #E74C3C;
+        }
+
+        .status-waiting {
+            background: #F39C12;
+        }
+
+        .status-contact {
+            background: #27AE60;
+        }
+
+        .status-refused {
+            background: #E74C3C;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ECF0F1;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #2C3E50;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #7F8C8D;
+        }
+
+        .close:hover {
+            color: #2C3E50;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7F8C8D;
+        }
+
+        .spinner {
+            border: 4px solid #ECF0F1;
+            border-top: 4px solid #2C3E50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7F8C8D;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-right {
+                width: 100%;
+                margin-top: 20px;
+                flex-wrap: wrap;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav li {
+                flex: none;
+            }
+
+            nav a {
+                border-right: none;
+                border-bottom: 1px solid #ECF0F1;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>🎼 Plume</h1>
+                <p>Tableau de Prospection & Suivi Concerts</p>
+            </div>
+            <div class="header-right">
+                <div class="metric">
+                    <div class="metric-label">TOTAL CONTACTS</div>
+                    <div class="metric-value" id="total-contacts">0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">À CONTACTER</div>
+                    <div class="metric-value" id="to-contact">0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">CONFIRMÉS</div>
+                    <div class="metric-value" id="confirmed">0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">EN COURS</div>
+                    <div class="metric-value" id="in-progress">0</div>
+                </div>
+            </div>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a class="nav-link active" onclick="loadPage('prospection')">📊 Prospection</a></li>
+                <li><a class="nav-link" onclick="loadPage('contacts')">📇 Contacts</a></li>
+                <li><a class="nav-link" onclick="loadPage('equipe')">👥 Équipe</a></li>
+                <li><a class="nav-link" onclick="loadPage('programmes')">🎵 Programmes</a></li>
+                <li><a class="nav-link" onclick="loadPage('concerts')">🎼 Concerts</a></li>
+            </ul>
+        </nav>
+
+        <div class="content" id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Chargement...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Ajouter un contact</h2>
+                <button class="close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="dataForm" onsubmit="saveContact(event)">
+                <div id="formFields"></div>
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn">✓ Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get, set, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWTmB51tKKrq5Vp1MYejKTCDWTfdWKo7U",
+            authDomain: "plume-prospection.firebaseapp.com",
+            databaseURL: "https://plume-prospection-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "plume-prospection",
+            storageBucket: "plume-prospection.firebasestorage.app",
+            messagingSenderId: "633805507798",
+            appId: "1:633805507798:web:c567a4530d9a52fc39cd77",
+            measurementId: "G-D7LMPQXVEJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        window.db = database;
+        window.dbRef = ref;
+        window.dbGet = get;
+        window.dbSet = set;
+        window.dbPush = push;
+        window.dbRemove = remove;
+
+        // Données initiales
+        const EQUIPE = [
+            { nom: "Flore Seube", telephone: "+33 6 21 97 36 12", email: "flore.seube@gmail.com" },
+            { nom: "Mathilde Vialle", telephone: "+33 6 26 90 49 51", email: "mathildevialle@gmail.com" },
+            { nom: "Benjamin Garnier", telephone: "06 15 19 04 59", email: "monosaure@gmail.com" },
+            { nom: "Lucas Peres", telephone: "0616186613", email: "lucas.lirone@gmail.com" }
+        ];
+
+        const PROGRAMMES = [
+            { titre: "Crystal Teares", description: "Musique anglaise pour consort de violes" },
+            { titre: "Consort Songs", description: "Musique pour voix et consort de violes" },
+            { titre: "La Gamba", description: "Musique italienne pour violes de gambe" }
+        ];
+
+        window.loadPage = async function(page) {
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement...</p></div>';
+
+            if (page === 'prospection') await loadProspection();
+            else if (page === 'contacts') await loadContacts();
+            else if (page === 'equipe') loadEquipe();
+            else if (page === 'programmes') loadProgrammes();
+            else if (page === 'concerts') await loadConcerts();
+        };
+
+        window.loadProspection = async function() {
+            try {
+                const snapshot = await window.dbGet(window.dbRef(window.db, 'contacts'));
+                const contacts = snapshot.val() ? Object.entries(snapshot.val()).map(([key, val]) => ({id: key, ...val})) : [];
+
+                updateMetrics(contacts);
+
+                let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📊 Prospection Contacts</h2>
+                    <button class="btn" onclick="openAddContactModal()">➕ NOUVEAU CONTACT</button>
+                </div>`;
+
+                if (contacts.length === 0) {
+                    html += '<div class="empty-state"><div class="empty-state-icon">📭</div><p>Aucun contact pour le moment</p></div>';
+                } else {
+                    html += `<table>
+                        <thead><tr>
+                            <th>Structure</th>
+                            <th>Contact</th>
+                            <th>Programme</th>
+                            <th>Responsable</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr></thead><tbody>`;
+
+                    contacts.forEach(contact => {
+                        const statusClass = `status-${contact.statut?.toLowerCase().replace(/\s+/g, '')}`;
+                        html += `<tr>
+                            <td><strong>${contact.structure || 'N/A'}</strong></td>
+                            <td>${contact.contact || 'N/A'}</td>
+                            <td>${contact.programme || 'N/A'}</td>
+                            <td>${contact.responsable || 'N/A'}</td>
+                            <td><span class="status ${statusClass}">${contact.statut || 'N/A'}</span></td>
+                            <td>
+                                <button class="btn btn-danger" onclick="deleteContact('${contact.id}')">🗑️</button>
+                            </td>
+                        </tr>`;
+                    });
+
+                    html += '</tbody></table>';
+                }
+
+                document.getElementById('content').innerHTML = html;
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('content').innerHTML = '<p style="color: red;">Erreur: ' + error.message + '</p>';
+            }
+        };
+
+        window.loadContacts = async function() {
+            try {
+                const snapshot = await window.dbGet(window.dbRef(window.db, 'contacts'));
+                const contacts = snapshot.val() ? Object.entries(snapshot.val()).map(([key, val]) => ({id: key, ...val})) : [];
+
+                let html = `<div style="margin-bottom: 20px;">
+                    <h2>📇 Base de Données Contacts</h2>
+                </div>`;
+
+                if (contacts.length === 0) {
+                    html += '<div class="empty-state"><div class="empty-state-icon">📭</div><p>Aucun contact</p></div>';
+                } else {
+                    html += `<table>
+                        <thead><tr>
+                            <th>Structure</th>
+                            <th>Directeur</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Thématiques</th>
+                        </tr></thead><tbody>`;
+
+                    contacts.forEach(contact => {
+                        html += `<tr>
+                            <td>${contact.structure || ''}</td>
+                            <td>${contact.directeur || ''}</td>
+                            <td>${contact.email_directeur || ''}</td>
+                            <td>${contact.contact || ''}</td>
+                            <td>${contact.thematiques || ''}</td>
+                        </tr>`;
+                    });
+
+                    html += '</tbody></table>';
+                }
+
+                document.getElementById('content').innerHTML = html;
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        };
+
+        window.loadEquipe = function() {
+            let html = `<h2>👥 Équipe Plume</h2>
+                <table>
+                    <thead><tr>
+                        <th>Nom</th>
+                        <th>Téléphone</th>
+                        <th>Email</th>
+                    </tr></thead><tbody>`;
+
+            EQUIPE.forEach(member => {
+                html += `<tr>
+                    <td><strong>${member.nom}</strong></td>
+                    <td><a href="tel:${member.telephone}">${member.telephone}</a></td>
+                    <td><a href="mailto:${member.email}">${member.email}</a></td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('content').innerHTML = html;
+        };
+
+        window.loadProgrammes = function() {
+            let html = `<h2>🎵 Programmes Musicaux</h2>
+                <table>
+                    <thead><tr>
+                        <th>Titre</th>
+                        <th>Description</th>
+                    </tr></thead><tbody>`;
+
+            PROGRAMMES.forEach(prog => {
+                html += `<tr>
+                    <td><strong>${prog.titre}</strong></td>
+                    <td>${prog.description}</td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('content').innerHTML = html;
+        };
+
+        window.loadConcerts = async function() {
+            try {
+                const snapshot = await window.dbGet(window.dbRef(window.db, 'concerts'));
+                const concerts = snapshot.val() ? Object.entries(snapshot.val()).map(([key, val]) => ({id: key, ...val})) : [];
+
+                let html = `<div style="margin-bottom: 20px;">
+                    <h2>🎼 Concerts</h2>
+                </div>`;
+
+                if (concerts.length === 0) {
+                    html += '<div class="empty-state"><div class="empty-state-icon">🎼</div><p>Aucun concert</p></div>';
+                } else {
+                    html += `<table>
+                        <thead><tr>
+                            <th>Date</th>
+                            <th>Lieu</th>
+                            <th>Programme</th>
+                            <th>Responsable</th>
+                            <th>Statut</th>
+                        </tr></thead><tbody>`;
+
+                    concerts.forEach(concert => {
+                        const dateObj = new Date(concert.date);
+                        const dateFormatted = dateObj.toLocaleDateString('fr-FR');
+
+                        html += `<tr>
+                            <td>${dateFormatted}</td>
+                            <td>${concert.lieu}</td>
+                            <td>${concert.programme}</td>
+                            <td>${concert.responsable}</td>
+                            <td><span class="status">${concert.statut}</span></td>
+                        </tr>`;
+                    });
+
+                    html += '</tbody></table>';
+                }
+
+                document.getElementById('content').innerHTML = html;
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        };
+
+        function updateMetrics(contacts) {
+            const total = contacts.length;
+            const toContact = contacts.filter(c => c.statut === 'A contacter').length;
+            const confirmed = contacts.filter(c => c.statut === 'Confirmé').length;
+            const inProgress = contacts.filter(c => ['En cours', 'Relancé'].includes(c.statut)).length;
+
+            document.getElementById('total-contacts').textContent = total;
+            document.getElementById('to-contact').textContent = toContact;
+            document.getElementById('confirmed').textContent = confirmed;
+            document.getElementById('in-progress').textContent = inProgress;
+        }
+
+        window.openAddContactModal = function() {
+            document.getElementById('modalTitle').textContent = 'Ajouter un nouveau contact';
+            const formFields = document.getElementById('formFields');
+            formFields.innerHTML = `
+                <div class="form-group">
+                    <label>Structure / Festival *</label>
+                    <input type="text" id="structure" required>
+                </div>
+                <div class="form-group">
+                    <label>Directeur</label>
+                    <input type="text" id="directeur">
+                </div>
+                <div class="form-group">
+                    <label>Email Directeur</label>
+                    <input type="email" id="email_directeur">
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" id="telephone">
+                </div>
+                <div class="form-group">
+                    <label>Contact Direct</label>
+                    <input type="text" id="contact">
+                </div>
+                <div class="form-group">
+                    <label>Email Contact</label>
+                    <input type="email" id="email_contact">
+                </div>
+                <div class="form-group">
+                    <label>Thématiques</label>
+                    <input type="text" id="thematiques">
+                </div>
+                <div class="form-group">
+                    <label>Programme</label>
+                    <select id="programme">
+                        <option value="">-- Choisir --</option>
+                        <option value="Crystal Teares">Crystal Teares</option>
+                        <option value="Consort Songs">Consort Songs</option>
+                        <option value="La Gamba">La Gamba</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Responsable</label>
+                    <select id="responsable">
+                        <option value="">-- Choisir --</option>
+                        <option value="Flore Seube">Flore Seube</option>
+                        <option value="Mathilde Vialle">Mathilde Vialle</option>
+                        <option value="Benjamin Garnier">Benjamin Garnier</option>
+                        <option value="Lucas Peres">Lucas Peres</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Statut</label>
+                    <select id="statut">
+                        <option value="A contacter">A contacter</option>
+                        <option value="En cours">En cours</option>
+                        <option value="Relancé">Relancé</option>
+                        <option value="En attente">En attente</option>
+                        <option value="Confirmé">Confirmé</option>
+                        <option value="Refusé">Refusé</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="notes"></textarea>
+                </div>
+            `;
+            document.getElementById('formModal').classList.add('active');
+        };
+
+        window.saveContact = async function(e) {
+            e.preventDefault();
+
+            const contact = {
+                structure: document.getElementById('structure').value,
+                directeur: document.getElementById('directeur').value,
+                email_directeur: document.getElementById('email_directeur').value,
+                telephone: document.getElementById('telephone').value,
+                contact: document.getElementById('contact').value,
+                email_contact: document.getElementById('email_contact').value,
+                thematiques: document.getElementById('thematiques').value,
+                programme: document.getElementById('programme').value,
+                responsable: document.getElementById('responsable').value,
+                statut: document.getElementById('statut').value,
+                notes: document.getElementById('notes').value,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                const newRef = window.dbPush(window.dbRef(window.db, 'contacts'));
+                await window.dbSet(newRef, contact);
+                window.closeModal();
+                await window.loadProspection();
+                alert('Contact enregistré avec succès !');
+            } catch (error) {
+                alert('Erreur: ' + error.message);
+            }
+        };
+
+        window.closeModal = function() {
+            document.getElementById('formModal').classList.remove('active');
+        };
+
+        window.deleteContact = async function(id) {
+            if (confirm('Êtes-vous sûr ?')) {
+                try {
+                    await window.dbRemove(window.dbRef(window.db, 'contacts/' + id));
+                    await window.loadProspection();
+                } catch (error) {
+                    alert('Erreur: ' + error.message);
+                }
+            }
+        };
+
+        // Charger la première page
+        window.loadProspection();
+    </script>
+</body>
+</html>
