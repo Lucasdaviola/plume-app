@@ -666,6 +666,13 @@
             cursor: pointer;
             min-width: 120px;
             transition: all 0.3s;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-repeat: no-repeat;
+            background-position: right 5px center;
+            background-size: 12px;
+            padding-right: 25px;
         }
 
         .status-select:focus {
@@ -673,14 +680,53 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
+        /* Couleurs de base selon la valeur sélectionnée */
+        .status-select {
+            background-color: #BDC3C7;
+        }
+
+        .status-select[value="Test"],
+        .status-select:has(option[value="Test"]:checked) {
+            background-color: #E74C3C;
+        }
+
+        .status-select[value="A contacter"],
+        .status-select:has(option[value="A contacter"]:checked) {
+            background-color: #27AE60;
+        }
+
+        .status-select[value="Relancé"],
+        .status-select:has(option[value="Relancé"]:checked) {
+            background-color: #F39C12;
+        }
+
+        .status-select[value="En attente"],
+        .status-select:has(option[value="En attente"]:checked) {
+            background-color: #F39C12;
+        }
+
+        .status-select[value="Confirmé"],
+        .status-select:has(option[value="Confirmé"]:checked) {
+            background-color: #27AE60;
+        }
+
+        .status-select[value="Refusé"],
+        .status-select:has(option[value="Refusé"]:checked) {
+            background-color: #E74C3C;
+        }
+
+        .status-select[value="Réalisé"],
+        .status-select:has(option[value="Réalisé"]:checked) {
+            background-color: #27AE60;
+        }
+
         /* Options du select */
         .status-select option {
             color: #2C3E50;
             background: white;
-            padding: 5px;
+            padding: 10px;
         }
 
-        /* Couleurs des statuts dans le select */
         .status-select option[value="Test"] {
             background: #E74C3C;
             color: white;
@@ -711,29 +757,9 @@
             color: white;
         }
 
-        /* Couleur du select selon la valeur */
-        .status-select[value="Test"] {
-            background: #E74C3C;
-        }
-
-        .status-select[value="A contacter"] {
+        .status-select option[value="Réalisé"] {
             background: #27AE60;
-        }
-
-        .status-select[value="Relancé"] {
-            background: #F39C12;
-        }
-
-        .status-select[value="En attente"] {
-            background: #F39C12;
-        }
-
-        .status-select[value="Confirmé"] {
-            background: #27AE60;
-        }
-
-        .status-select[value="Refusé"] {
-            background: #E74C3C;
+            color: white;
         }
 
         /* Badge Équipe */
@@ -1100,6 +1126,7 @@
                                     <option value="En attente" ${contact.statut === 'En attente' ? 'selected' : ''}>En attente</option>
                                     <option value="Confirmé" ${contact.statut === 'Confirmé' ? 'selected' : ''}>Confirmé</option>
                                     <option value="Refusé" ${contact.statut === 'Refusé' ? 'selected' : ''}>Refusé</option>
+                                    <option value="Réalisé" ${contact.statut === 'Réalisé' ? 'selected' : ''}>Réalisé</option>
                                 </select>
                             </td>
                             <td style="font-size: 12px;">${contact.notes || ''}</td>
@@ -1113,6 +1140,10 @@
                 }
 
                 document.getElementById('content').innerHTML = html;
+                // Initialiser les couleurs des selects
+                setTimeout(() => {
+                    window.initializeSelectColors();
+                }, 100);
             } catch (error) {
                 console.error('Erreur:', error);
                 document.getElementById('content').innerHTML = '<p style="color: red;">Erreur: ' + error.message + '</p>';
@@ -1429,10 +1460,34 @@
                     await window.dbSet(window.dbRef(window.db, 'contacts/' + id), contact);
                     // Recharger pour mettre à jour les métriques
                     await window.loadProspection();
+                    // Mettre à jour les couleurs
+                    setTimeout(() => {
+                        window.initializeSelectColors();
+                    }, 100);
                 }
             } catch (error) {
                 alert('Erreur: ' + error.message);
             }
+        };
+
+        // Initialiser les couleurs des selects
+        window.initializeSelectColors = function() {
+            document.querySelectorAll('.status-select').forEach(select => {
+                const value = select.value;
+                let bgColor = '#BDC3C7';
+                
+                if (value === 'Test' || value === 'Refusé') {
+                    bgColor = '#E74C3C';
+                } else if (value === 'A contacter' || value === 'Confirmé' || value === 'Réalisé') {
+                    bgColor = '#27AE60';
+                } else if (value === 'Relancé' || value === 'En attente') {
+                    bgColor = '#F39C12';
+                } else if (value === 'En cours') {
+                    bgColor = '#3498DB';
+                }
+                
+                select.style.backgroundColor = bgColor;
+            });
         };
 
         window.openAddContactModal = function() {
@@ -1501,6 +1556,7 @@
                         <option value="En attente">En attente</option>
                         <option value="Confirmé">Confirmé</option>
                         <option value="Refusé">Refusé</option>
+                        <option value="Réalisé">Réalisé</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1550,6 +1606,7 @@
                         <option value="En attente">En attente</option>
                         <option value="Confirmé">Confirmé</option>
                         <option value="Refusé">Refusé</option>
+                        <option value="Réalisé">Réalisé</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1714,6 +1771,7 @@
                             <option value="En attente" ${contact.statut === 'En attente' ? 'selected' : ''}>En attente</option>
                             <option value="Confirmé" ${contact.statut === 'Confirmé' ? 'selected' : ''}>Confirmé</option>
                             <option value="Refusé" ${contact.statut === 'Refusé' ? 'selected' : ''}>Refusé</option>
+                            <option value="Réalisé" ${contact.statut === 'Réalisé' ? 'selected' : ''}>Réalisé</option>
                         </select>
                     </div>
                     <div class="form-group">
