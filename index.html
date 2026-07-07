@@ -650,7 +650,86 @@
             font-size: 12px;
         }
 
-        @media (max-width: 768px) {
+        /* Select de Statut */
+        .status-select {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            min-width: 120px;
+            transition: all 0.3s;
+        }
+
+        .status-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Options du select */
+        .status-select option {
+            color: #2C3E50;
+            background: white;
+            padding: 5px;
+        }
+
+        /* Couleurs des statuts dans le select */
+        .status-select option[value="Test"] {
+            background: #E74C3C;
+            color: white;
+        }
+
+        .status-select option[value="A contacter"] {
+            background: #27AE60;
+            color: white;
+        }
+
+        .status-select option[value="Relancé"] {
+            background: #F39C12;
+            color: white;
+        }
+
+        .status-select option[value="En attente"] {
+            background: #F39C12;
+            color: white;
+        }
+
+        .status-select option[value="Confirmé"] {
+            background: #27AE60;
+            color: white;
+        }
+
+        .status-select option[value="Refusé"] {
+            background: #E74C3C;
+            color: white;
+        }
+
+        /* Couleur du select selon la valeur */
+        .status-select[value="Test"] {
+            background: #E74C3C;
+        }
+
+        .status-select[value="A contacter"] {
+            background: #27AE60;
+        }
+
+        .status-select[value="Relancé"] {
+            background: #F39C12;
+        }
+
+        .status-select[value="En attente"] {
+            background: #F39C12;
+        }
+
+        .status-select[value="Confirmé"] {
+            background: #27AE60;
+        }
+
+        .status-select[value="Refusé"] {
+            background: #E74C3C;
+        }
             header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -849,7 +928,6 @@
                             </tr></thead><tbody>`;
 
                     contacts.forEach(contact => {
-                        const statusClass = `status-${contact.statut?.toLowerCase().replace(/\s+/g, '-')}`;
                         html += `<tr>
                             <td><strong>${contact.structure || ''}</strong></td>
                             <td>${contact.directeur || ''}</td>
@@ -860,7 +938,16 @@
                             <td>${contact.thematiques || ''}</td>
                             <td>${contact.programme || ''}</td>
                             <td>${contact.responsable || ''}</td>
-                            <td><span class="status ${statusClass}">${contact.statut || ''}</span></td>
+                            <td>
+                                <select class="status-select" onchange="updateContactStatus('${contact.id}', this.value)">
+                                    <option value="Test" ${contact.statut === 'Test' ? 'selected' : ''}>Test</option>
+                                    <option value="A contacter" ${contact.statut === 'A contacter' ? 'selected' : ''}>A contacter</option>
+                                    <option value="Relancé" ${contact.statut === 'Relancé' ? 'selected' : ''}>Relancé</option>
+                                    <option value="En attente" ${contact.statut === 'En attente' ? 'selected' : ''}>En attente</option>
+                                    <option value="Confirmé" ${contact.statut === 'Confirmé' ? 'selected' : ''}>Confirmé</option>
+                                    <option value="Refusé" ${contact.statut === 'Refusé' ? 'selected' : ''}>Refusé</option>
+                                </select>
+                            </td>
                             <td style="font-size: 12px;">${contact.notes || ''}</td>
                             <td>
                                 <button class="btn btn-danger" onclick="deleteContact('${contact.id}')">🗑️</button>
@@ -1087,14 +1174,21 @@
                     concerts.forEach(concert => {
                         const dateObj = new Date(concert.date);
                         const dateFormatted = dateObj.toLocaleDateString('fr-FR');
-                        const statusClass = `status-${concert.statut?.toLowerCase().replace(/\s+/g, '-')}`;
 
                         html += `<tr>
                             <td><strong>${dateFormatted}</strong></td>
                             <td>${concert.lieu || ''}</td>
                             <td>${concert.programme || ''}</td>
                             <td>${concert.responsable || ''}</td>
-                            <td><span class="status ${statusClass}">${concert.statut || ''}</span></td>
+                            <td>
+                                <select class="status-select" value="${concert.statut || ''}" onchange="updateConcertStatus('${concert.id}', this.value)">
+                                    <option value="Prospection" ${concert.statut === 'Prospection' ? 'selected' : ''}>Prospection</option>
+                                    <option value="Négociation" ${concert.statut === 'Négociation' ? 'selected' : ''}>Négociation</option>
+                                    <option value="Confirmé" ${concert.statut === 'Confirmé' ? 'selected' : ''}>Confirmé</option>
+                                    <option value="Réalisé" ${concert.statut === 'Réalisé' ? 'selected' : ''}>Réalisé</option>
+                                    <option value="Annulé" ${concert.statut === 'Annulé' ? 'selected' : ''}>Annulé</option>
+                                </select>
+                            </td>
                             <td>${concert.recette ? concert.recette + '€' : '-'}</td>
                             <td>${concert.public || '-'}</td>
                             <td style="font-size: 12px; max-width: 200px; word-break: break-word;">${concert.notes || ''}</td>
@@ -1126,6 +1220,22 @@
             document.getElementById('confirmed').textContent = confirmed;
             document.getElementById('in-progress').textContent = inProgress;
         }
+
+        window.updateContactStatus = async function(id, newStatus) {
+            try {
+                const snapshot = await window.dbGet(window.dbRef(window.db, 'contacts/' + id));
+                const contact = snapshot.val();
+                
+                if (contact) {
+                    contact.statut = newStatus;
+                    await window.dbSet(window.dbRef(window.db, 'contacts/' + id), contact);
+                    // Recharger pour mettre à jour les métriques
+                    await window.loadProspection();
+                }
+            } catch (error) {
+                alert('Erreur: ' + error.message);
+            }
+        };
 
         window.openAddContactModal = function() {
             document.getElementById('modalTitle').textContent = 'Ajouter un nouveau contact';
@@ -1905,6 +2015,22 @@
                 } catch (error) {
                     alert('Erreur: ' + error.message);
                 }
+            }
+        };
+
+        window.updateConcertStatus = async function(id, newStatus) {
+            try {
+                const snapshot = await window.dbGet(window.dbRef(window.db, 'concerts/' + id));
+                const concert = snapshot.val();
+                
+                if (concert) {
+                    concert.statut = newStatus;
+                    await window.dbSet(window.dbRef(window.db, 'concerts/' + id), concert);
+                    // Recharger
+                    await window.loadConcerts();
+                }
+            } catch (error) {
+                alert('Erreur: ' + error.message);
             }
         };
 
