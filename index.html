@@ -1769,8 +1769,23 @@
         };
 
         // ===== GESTION PROGRAMMES =====
-        window.openAddProgrammeModal = function() {
+        window.openAddProgrammeModal = async function() {
             document.getElementById('modalTitle').textContent = 'Ajouter un nouveau programme';
+            
+            // Récupérer les membres depuis Firebase
+            const snapshot = await window.dbGet(window.dbRef(window.db, 'equipe'));
+            let equipeMembers = EQUIPE.map(m => m.nom);
+            
+            if (snapshot.val()) {
+                equipeMembers = Object.values(snapshot.val()).map(m => m.nom);
+            }
+
+            // Créer les options du select
+            let equipeOptions = '<option value="">-- Aucun --</option>';
+            equipeMembers.forEach(member => {
+                equipeOptions += `<option value="${member}">${member}</option>`;
+            });
+
             const formFields = document.getElementById('formFields');
             formFields.innerHTML = `
                 <div class="form-group">
@@ -1802,29 +1817,41 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>Équipe 1</label>
-                            <input type="text" id="equipe1" class="equipe-input" placeholder="Entrez un nom ou sélectionnez">
+                            <select id="equipe1">
+                                ${equipeOptions}
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Équipe 2</label>
-                            <input type="text" id="equipe2" class="equipe-input" placeholder="Entrez un nom ou sélectionnez">
+                            <select id="equipe2">
+                                ${equipeOptions}
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Équipe 3</label>
-                            <input type="text" id="equipe3" class="equipe-input" placeholder="Entrez un nom ou sélectionnez">
+                            <select id="equipe3">
+                                ${equipeOptions}
+                            </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Équipe 4</label>
-                            <input type="text" id="equipe4" class="equipe-input" placeholder="Entrez un nom ou sélectionnez">
+                            <select id="equipe4">
+                                ${equipeOptions}
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Équipe 5</label>
-                            <input type="text" id="equipe5" class="equipe-input" placeholder="Entrez un nom ou sélectionnez">
+                            <select id="equipe5">
+                                ${equipeOptions}
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Équipe 6</label>
-                            <input type="text" id="equipe6" class="equipe-input" placeholder="Entrez un nom ou sélectionnez">
+                            <select id="equipe6">
+                                ${equipeOptions}
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -1833,13 +1860,6 @@
                     <textarea id="description" placeholder="Détails du programme, instrumentations, etc."></textarea>
                 </div>
             `;
-            
-            // Ajouter l'autocomplete
-            setTimeout(() => {
-                ['equipe1', 'equipe2', 'equipe3', 'equipe4', 'equipe5', 'equipe6'].forEach(id => {
-                    setupEquipeAutocomplete(id);
-                });
-            }, 100);
             
             document.getElementById('dataForm').onsubmit = saveProgramme;
             document.getElementById('formModal').classList.add('active');
@@ -1860,6 +1880,20 @@
                     alert('Programme non trouvé');
                     return;
                 }
+
+                // Récupérer les membres depuis Firebase
+                const snapshotEquipe = await window.dbGet(window.dbRef(window.db, 'equipe'));
+                let equipeMembers = EQUIPE.map(m => m.nom);
+                
+                if (snapshotEquipe.val()) {
+                    equipeMembers = Object.values(snapshotEquipe.val()).map(m => m.nom);
+                }
+
+                // Créer les options du select
+                let equipeOptions = '<option value="">-- Aucun --</option>';
+                equipeMembers.forEach(member => {
+                    equipeOptions += `<option value="${member}">${member}</option>`;
+                });
 
                 document.getElementById('modalTitle').textContent = 'Éditer le programme';
                 const formFields = document.getElementById('formFields');
@@ -1893,29 +1927,41 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Équipe 1</label>
-                                <input type="text" id="equipe1" class="equipe-input" value="${programme.equipe1 || ''}" placeholder="Entrez un nom ou sélectionnez">
+                                <select id="equipe1">
+                                    ${equipeOptions.replace(`value="${programme.equipe1 || ''}"`, `value="${programme.equipe1 || ''}" selected`)}
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label>Équipe 2</label>
-                                <input type="text" id="equipe2" class="equipe-input" value="${programme.equipe2 || ''}" placeholder="Entrez un nom ou sélectionnez">
+                                <select id="equipe2">
+                                    ${equipeOptions.replace(`value="${programme.equipe2 || ''}"`, `value="${programme.equipe2 || ''}" selected`)}
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label>Équipe 3</label>
-                                <input type="text" id="equipe3" class="equipe-input" value="${programme.equipe3 || ''}" placeholder="Entrez un nom ou sélectionnez">
+                                <select id="equipe3">
+                                    ${equipeOptions.replace(`value="${programme.equipe3 || ''}"`, `value="${programme.equipe3 || ''}" selected`)}
+                                </select>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Équipe 4</label>
-                                <input type="text" id="equipe4" class="equipe-input" value="${programme.equipe4 || ''}" placeholder="Entrez un nom ou sélectionnez">
+                                <select id="equipe4">
+                                    ${equipeOptions.replace(`value="${programme.equipe4 || ''}"`, `value="${programme.equipe4 || ''}" selected`)}
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label>Équipe 5</label>
-                                <input type="text" id="equipe5" class="equipe-input" value="${programme.equipe5 || ''}" placeholder="Entrez un nom ou sélectionnez">
+                                <select id="equipe5">
+                                    ${equipeOptions.replace(`value="${programme.equipe5 || ''}"`, `value="${programme.equipe5 || ''}" selected`)}
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label>Équipe 6</label>
-                                <input type="text" id="equipe6" class="equipe-input" value="${programme.equipe6 || ''}" placeholder="Entrez un nom ou sélectionnez">
+                                <select id="equipe6">
+                                    ${equipeOptions.replace(`value="${programme.equipe6 || ''}"`, `value="${programme.equipe6 || ''}" selected`)}
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -1924,13 +1970,6 @@
                         <textarea id="description">${programme.description || ''}</textarea>
                     </div>
                 `;
-                
-                // Ajouter l'autocomplete
-                setTimeout(() => {
-                    ['equipe1', 'equipe2', 'equipe3', 'equipe4', 'equipe5', 'equipe6'].forEach(fieldId => {
-                        window.setupEquipeAutocomplete(fieldId);
-                    });
-                }, 100);
                 
                 document.getElementById('dataForm').onsubmit = async (e) => await updateProgramme(e, id);
                 document.getElementById('formModal').classList.add('active');
