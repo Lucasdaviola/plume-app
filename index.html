@@ -1098,7 +1098,7 @@
                 const programmes = snapshot.val() ? Object.entries(snapshot.val()).map(([key, val]) => ({id: key, ...val})) : PROGRAMMES.map((p, i) => ({id: i, ...p}));
 
                 let html = `<div class="content-header">
-                    <h2>🎵 Programmes Musicaux</h2>
+                    <h2>🎵 Programmes</h2>
                     <button class="btn" onclick="openAddProgrammeModal()">➕ NOUVEAU PROGRAMME</button>
                 </div>`;
 
@@ -1661,8 +1661,14 @@
 
         window.editProgramme = async function(id) {
             try {
-                const snapshot = await window.dbGet(window.dbRef(window.db, 'programmes/' + id));
-                const programme = snapshot.val();
+                // D'abord vérifier dans Firebase
+                let snapshot = await window.dbGet(window.dbRef(window.db, 'programmes/' + id));
+                let programme = snapshot.val();
+
+                // Si pas trouvé dans Firebase, essayer avec les programmes locaux
+                if (!programme) {
+                    programme = PROGRAMMES[parseInt(id)];
+                }
 
                 if (!programme) {
                     alert('Programme non trouvé');
