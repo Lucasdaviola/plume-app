@@ -32,7 +32,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
         }
 
         .header-left h1 {
@@ -51,6 +51,8 @@
             display: flex;
             gap: 20px;
             align-items: center;
+            flex-direction: row;
+            width: auto;
         }
 
         .metric {
@@ -72,6 +74,91 @@
             font-size: 24px;
             font-weight: bold;
             color: #2C3E50;
+        }
+
+        /* Recherche globale */
+        .search-container {
+            position: relative;
+            width: 250px;
+            order: -1;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #BDC3C7;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498DB;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #BDC3C7;
+            border-top: none;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .search-results.show {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ECF0F1;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-result-item:hover {
+            background: #F8F9FA;
+        }
+
+        .search-result-item strong {
+            display: block;
+            color: #2C3E50;
+            font-weight: 600;
+        }
+
+        .search-result-item small {
+            color: #3498DB;
+            font-size: 12px;
+            font-style: italic;
+        }
+
+        .search-result-category {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 2px 6px;
+            background: #ECF0F1;
+            border-radius: 3px;
+            font-size: 11px;
+            color: #2C3E50;
+            font-weight: 500;
+        }
+
+        .search-no-results {
+            padding: 15px;
+            text-align: center;
+            color: #7F8C8D;
+            font-size: 13px;
         }
 
         nav {
@@ -969,22 +1056,28 @@
                 <h1>🎼 Plume</h1>
                 <p>Tableau de Prospection & Suivi Concerts</p>
             </div>
-            <div class="header-right">
-                <div class="metric">
-                    <div class="metric-label">TOTAL CONTACTS</div>
-                    <div class="metric-value" id="total-contacts">0</div>
+            <div style="display: flex; flex-direction: column; gap: 15px; align-items: flex-end;">
+                <div class="search-container">
+                    <input type="text" class="search-input" id="global-search" placeholder="Rechercher...">
+                    <ul class="search-results" id="search-results"></ul>
                 </div>
-                <div class="metric">
-                    <div class="metric-label">À CONTACTER</div>
-                    <div class="metric-value" id="to-contact">0</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">CONFIRMÉS</div>
-                    <div class="metric-value" id="confirmed">0</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">EN COURS</div>
-                    <div class="metric-value" id="in-progress">0</div>
+                <div class="header-right">
+                    <div class="metric">
+                        <div class="metric-label">TOTAL CONTACTS</div>
+                        <div class="metric-value" id="total-contacts">0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">À CONTACTER</div>
+                        <div class="metric-value" id="to-contact">0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">CONFIRMÉS</div>
+                        <div class="metric-value" id="confirmed">0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">EN COURS</div>
+                        <div class="metric-value" id="in-progress">0</div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -1083,7 +1176,7 @@
                 updateMetrics(contacts);
 
                 let html = `<div class="content-header">
-                    <h2>📊 Prospection Contacts</h2>
+                    <h2>📊 Prospection</h2>
                     <div class="button-group">
                         <button class="btn" onclick="openAddContactModal()">➕ NOUVEAU CONTACT</button>
                         <button class="btn btn-secondary" onclick="openNewProspectionModal()">📋 NOUVELLE PROSPECTION</button>
@@ -1131,7 +1224,8 @@
                             </td>
                             <td style="font-size: 12px;">${contact.notes || ''}</td>
                             <td>
-                                <button class="btn btn-danger" onclick="deleteContact('${contact.id}')">🗑️</button>
+                                <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; margin-right: 5px;" onclick="editContact('${contact.id}')">✏️</button>
+                                <button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="deleteContact('${contact.id}')">🗑️</button>
                             </td>
                         </tr>`;
                     });
@@ -1156,89 +1250,61 @@
                 const contacts = snapshot.val() ? Object.entries(snapshot.val()).map(([key, val]) => ({id: key, ...val})) : [];
 
                 let html = `<div class="content-header">
-                    <h2>📇 Base de Données Contacts</h2>
+                    <h2>📇 Contacts</h2>
                     <button class="btn" onclick="openAddContactModal()">➕ AJOUTER CONTACT</button>
                 </div>`;
 
                 if (contacts.length === 0) {
                     html += '<div class="empty-state"><div class="empty-state-icon">📭</div><p>Aucun contact pour le moment</p></div>';
                 } else {
-                    html += '<div class="contacts-grid">';
+                    html += `<div style="overflow-x: auto;">
+                        <table>
+                            <thead><tr>
+                                <th>Structure</th>
+                                <th>Directeur</th>
+                                <th>Email</th>
+                                <th>Téléphone</th>
+                                <th>Contact Direct</th>
+                                <th>Email Contact</th>
+                                <th>Thématiques</th>
+                                <th>Programme</th>
+                                <th>Responsable</th>
+                                <th>Statut</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr></thead><tbody>`;
 
                     contacts.forEach(contact => {
-                        const statusClass = `contact-card-status status-${contact.statut?.toLowerCase().replace(/\s+/g, '-')}`;
-                        
-                        html += `
-                            <div class="contact-card">
-                                <div class="contact-card-header">
-                                    <div class="contact-card-title">${contact.structure || 'N/A'}</div>
-                                    <span class="${statusClass}">${contact.statut || ''}</span>
-                                </div>
-                                
-                                <div class="contact-card-body">
-                                    <div class="contact-field">
-                                        <div class="contact-field-label">Directeur</div>
-                                        <div class="contact-field-value">${contact.directeur || '-'}</div>
-                                    </div>
-                                    
-                                    <div class="contact-field">
-                                        <div class="contact-field-label">Email Dir.</div>
-                                        <div class="contact-field-value">
-                                            ${contact.email_directeur ? `<a href="mailto:${contact.email_directeur}">${contact.email_directeur}</a>` : '-'}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="contact-field">
-                                        <div class="contact-field-label">Téléphone</div>
-                                        <div class="contact-field-value">
-                                            ${contact.telephone ? `<a href="tel:${contact.telephone}">${contact.telephone}</a>` : '-'}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="contact-field">
-                                        <div class="contact-field-label">Contact Direct</div>
-                                        <div class="contact-field-value">${contact.contact || '-'}</div>
-                                    </div>
-                                    
-                                    <div class="contact-field">
-                                        <div class="contact-field-label">Email Contact</div>
-                                        <div class="contact-field-value">
-                                            ${contact.email_contact ? `<a href="mailto:${contact.email_contact}">${contact.email_contact}</a>` : '-'}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="contact-field">
-                                        <div class="contact-field-label">Thématiques</div>
-                                        <div class="contact-field-value">${contact.thematiques || '-'}</div>
-                                    </div>
-                                    
-                                    <div class="contact-field">
-                                        <div class="contact-field-label">Programme</div>
-                                        <div class="contact-field-value">${contact.programme || '-'}</div>
-                                    </div>
-                                    
-                                    <div class="contact-field">
-                                        <div class="contact-field-label">Responsable</div>
-                                        <div class="contact-field-value">${contact.responsable || '-'}</div>
-                                    </div>
-                                </div>
-                                
-                                ${contact.notes ? `
-                                    <div class="contact-card-notes">
-                                        <div class="contact-card-notes-label">Notes & Commentaires</div>
-                                        <div class="contact-card-notes-value">${contact.notes}</div>
-                                    </div>
-                                ` : ''}
-                                
-                                <div class="contact-card-footer">
-                                    <button class="btn btn-secondary" onclick="editContact('${contact.id}')">✏️ Éditer</button>
-                                    <button class="btn btn-danger" onclick="deleteContact('${contact.id}')">🗑️ Supprimer</button>
-                                </div>
-                            </div>
-                        `;
+                        const statusColor = {
+                            'Test': '#E74C3C',
+                            'A contacter': '#27AE60',
+                            'Relancé': '#F39C12',
+                            'En attente': '#F39C12',
+                            'Confirmé': '#27AE60',
+                            'Refusé': '#E74C3C',
+                            'Réalisé': '#27AE60'
+                        }[contact.statut] || '#BDC3C7';
+
+                        html += `<tr>
+                            <td><strong>${contact.structure || ''}</strong></td>
+                            <td>${contact.directeur || '-'}</td>
+                            <td>${contact.email_directeur ? `<a href="mailto:${contact.email_directeur}" style="color: #3498DB;">${contact.email_directeur}</a>` : '-'}</td>
+                            <td>${contact.telephone ? `<a href="tel:${contact.telephone}" style="color: #3498DB;">${contact.telephone}</a>` : '-'}</td>
+                            <td>${contact.contact || '-'}</td>
+                            <td>${contact.email_contact ? `<a href="mailto:${contact.email_contact}" style="color: #3498DB;">${contact.email_contact}</a>` : '-'}</td>
+                            <td>${contact.thematiques || '-'}</td>
+                            <td>${contact.programme || '-'}</td>
+                            <td>${contact.responsable || '-'}</td>
+                            <td><span style="display: inline-block; padding: 4px 8px; background: ${statusColor}; color: white; border-radius: 3px; font-size: 11px; font-weight: bold;">${contact.statut || ''}</span></td>
+                            <td style="font-size: 12px; max-width: 150px;">${contact.notes || '-'}</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; margin-right: 5px;" onclick="editContact('${contact.id}')">✏️</button>
+                                <button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="deleteContact('${contact.id}')">🗑️</button>
+                            </td>
+                        </tr>`;
                     });
 
-                    html += '</div>';
+                    html += '</tbody></table></div>';
                 }
 
                 document.getElementById('content').innerHTML = html;
@@ -1261,49 +1327,34 @@
                 if (equipeMembers.length === 0) {
                     html += '<div class="empty-state"><div class="empty-state-icon">👥</div><p>Aucun membre pour le moment</p></div>';
                 } else {
-                    html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">`;
+                    html += `<div style="overflow-x: auto;">
+                        <table>
+                            <thead><tr>
+                                <th>Nom</th>
+                                <th>Instrument</th>
+                                <th>Spécialité</th>
+                                <th>Téléphone</th>
+                                <th>Email</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr></thead><tbody>`;
 
                     equipeMembers.forEach(member => {
-                        html += `
-                            <div class="member-card">
-                                <div class="member-header">
-                                    <h3 class="member-name">${member.nom || ''}</h3>
-                                </div>
-                                <div class="member-body">
-                                    <div class="member-field">
-                                        <div class="member-label">Téléphone</div>
-                                        <div class="member-value">
-                                            ${member.telephone ? `<a href="tel:${member.telephone}">${member.telephone}</a>` : '-'}
-                                        </div>
-                                    </div>
-                                    <div class="member-field">
-                                        <div class="member-label">Email</div>
-                                        <div class="member-value">
-                                            ${member.email ? `<a href="mailto:${member.email}">${member.email}</a>` : '-'}
-                                        </div>
-                                    </div>
-                                    ${member.specialite ? `
-                                        <div class="member-field">
-                                            <div class="member-label">Spécialité</div>
-                                            <div class="member-value">${member.specialite}</div>
-                                        </div>
-                                    ` : ''}
-                                    ${member.notes ? `
-                                        <div class="member-field">
-                                            <div class="member-label">Notes</div>
-                                            <div class="member-value">${member.notes}</div>
-                                        </div>
-                                    ` : ''}
-                                </div>
-                                <div class="member-footer">
-                                    <button class="btn btn-secondary" onclick="editMember('${member.id}')">✏️ Éditer</button>
-                                    <button class="btn btn-danger" onclick="deleteMember('${member.id}')">🗑️ Supprimer</button>
-                                </div>
-                            </div>
-                        `;
+                        html += `<tr>
+                            <td><strong>${member.nom || ''}</strong></td>
+                            <td>${member.instrument || '-'}</td>
+                            <td>${member.specialite || '-'}</td>
+                            <td>${member.telephone ? `<a href="tel:${member.telephone}" style="color: #3498DB; text-decoration: none;">${member.telephone}</a>` : '-'}</td>
+                            <td>${member.email ? `<a href="mailto:${member.email}" style="color: #3498DB; text-decoration: none;">${member.email}</a>` : '-'}</td>
+                            <td style="font-size: 12px; max-width: 200px;">${member.notes || '-'}</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; margin-right: 5px;" onclick="editMember('${member.id}')">✏️</button>
+                                <button class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="deleteMember('${member.id}')">🗑️</button>
+                            </td>
+                        </tr>`;
                     });
 
-                    html += '</div>';
+                    html += '</tbody></table></div>';
                 }
 
                 document.getElementById('content').innerHTML = html;
@@ -2395,6 +2446,16 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
+                        <label>Instrument</label>
+                        <input type="text" id="instrument" placeholder="Ex: Viola da gamba, Voix, Luth">
+                    </div>
+                    <div class="form-group">
+                        <label>Spécialité</label>
+                        <input type="text" id="specialite" placeholder="Ex: Renaissance, Baroque">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
                         <label>Téléphone</label>
                         <input type="tel" id="telephone">
                     </div>
@@ -2402,10 +2463,6 @@
                         <label>Email</label>
                         <input type="email" id="email">
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>Spécialité / Instrument</label>
-                    <input type="text" id="specialite" placeholder="Ex: Viola da gamba, Voix, Luth">
                 </div>
                 <div class="form-group">
                     <label>Notes / Bio</label>
@@ -2441,6 +2498,16 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
+                            <label>Instrument</label>
+                            <input type="text" id="instrument" value="${member.instrument || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Spécialité</label>
+                            <input type="text" id="specialite" value="${member.specialite || ''}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
                             <label>Téléphone</label>
                             <input type="tel" id="telephone" value="${member.telephone || ''}">
                         </div>
@@ -2448,10 +2515,6 @@
                             <label>Email</label>
                             <input type="email" id="email" value="${member.email || ''}">
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Spécialité / Instrument</label>
-                        <input type="text" id="specialite" value="${member.specialite || ''}">
                     </div>
                     <div class="form-group">
                         <label>Notes / Bio</label>
@@ -2471,9 +2534,10 @@
 
             const member = {
                 nom: document.getElementById('nom').value,
+                instrument: document.getElementById('instrument').value,
+                specialite: document.getElementById('specialite').value,
                 telephone: document.getElementById('telephone').value,
                 email: document.getElementById('email').value,
-                specialite: document.getElementById('specialite').value,
                 notes: document.getElementById('notes').value,
                 createdAt: new Date().toISOString()
             };
@@ -2494,9 +2558,10 @@
 
             const member = {
                 nom: document.getElementById('nom').value,
+                instrument: document.getElementById('instrument').value,
+                specialite: document.getElementById('specialite').value,
                 telephone: document.getElementById('telephone').value,
                 email: document.getElementById('email').value,
-                specialite: document.getElementById('specialite').value,
                 notes: document.getElementById('notes').value,
                 updatedAt: new Date().toISOString()
             };
@@ -2521,6 +2586,170 @@
                 }
             }
         };
+
+        // ===== RECHERCHE GLOBALE =====
+        window.performGlobalSearch = async function(query) {
+            const resultsDiv = document.getElementById('search-results');
+            
+            if (!query || query.trim().length < 2) {
+                resultsDiv.classList.remove('show');
+                return;
+            }
+
+            const searchTerm = query.toLowerCase();
+            const results = [];
+
+            try {
+                // Chercher dans Prospection (contacts)
+                const contactsSnapshot = await window.dbGet(window.dbRef(window.db, 'contacts'));
+                if (contactsSnapshot.val()) {
+                    Object.entries(contactsSnapshot.val()).forEach(([id, contact]) => {
+                        if (
+                            contact.structure?.toLowerCase().includes(searchTerm) ||
+                            contact.directeur?.toLowerCase().includes(searchTerm) ||
+                            contact.contact?.toLowerCase().includes(searchTerm) ||
+                            contact.email_directeur?.toLowerCase().includes(searchTerm) ||
+                            contact.email_contact?.toLowerCase().includes(searchTerm) ||
+                            contact.thematiques?.toLowerCase().includes(searchTerm) ||
+                            contact.programme?.toLowerCase().includes(searchTerm)
+                        ) {
+                            results.push({
+                                id,
+                                name: contact.structure || contact.directeur || 'N/A',
+                                subtitle: contact.directeur ? `${contact.directeur}` : '',
+                                category: 'Prospection',
+                                type: 'contact',
+                                data: contact
+                            });
+                        }
+                    });
+                }
+
+                // Chercher dans Équipe (membres)
+                const equipeSnapshot = await window.dbGet(window.dbRef(window.db, 'equipe'));
+                if (equipeSnapshot.val()) {
+                    Object.entries(equipeSnapshot.val()).forEach(([id, member]) => {
+                        if (
+                            member.nom?.toLowerCase().includes(searchTerm) ||
+                            member.instrument?.toLowerCase().includes(searchTerm) ||
+                            member.specialite?.toLowerCase().includes(searchTerm) ||
+                            member.email?.toLowerCase().includes(searchTerm) ||
+                            member.telephone?.toLowerCase().includes(searchTerm) ||
+                            member.notes?.toLowerCase().includes(searchTerm)
+                        ) {
+                            results.push({
+                                id,
+                                name: member.nom || 'N/A',
+                                subtitle: member.instrument ? `${member.instrument}` : '',
+                                category: 'Équipe',
+                                type: 'member',
+                                data: member
+                            });
+                        }
+                    });
+                }
+
+                // Chercher dans Programmes
+                const programmesSnapshot = await window.dbGet(window.dbRef(window.db, 'programmes'));
+                if (programmesSnapshot.val()) {
+                    Object.entries(programmesSnapshot.val()).forEach(([id, programme]) => {
+                        if (
+                            programme.titre?.toLowerCase().includes(searchTerm) ||
+                            programme.compositeurs?.toLowerCase().includes(searchTerm) ||
+                            programme.periode?.toLowerCase().includes(searchTerm)
+                        ) {
+                            results.push({
+                                id,
+                                name: programme.titre || 'N/A',
+                                subtitle: programme.compositeurs ? `${programme.compositeurs}` : '',
+                                category: 'Programmes',
+                                type: 'programme',
+                                data: programme
+                            });
+                        }
+                    });
+                }
+
+                // Chercher dans Concerts
+                const concertsSnapshot = await window.dbGet(window.dbRef(window.db, 'concerts'));
+                if (concertsSnapshot.val()) {
+                    Object.entries(concertsSnapshot.val()).forEach(([id, concert]) => {
+                        if (
+                            concert.lieu?.toLowerCase().includes(searchTerm) ||
+                            concert.programme?.toLowerCase().includes(searchTerm) ||
+                            concert.responsable?.toLowerCase().includes(searchTerm)
+                        ) {
+                            results.push({
+                                id,
+                                name: concert.lieu || concert.programme || 'N/A',
+                                subtitle: concert.date ? `${concert.date}` : '',
+                                category: 'Concerts',
+                                type: 'concert',
+                                data: concert
+                            });
+                        }
+                    });
+                }
+
+                // Afficher les résultats
+                if (results.length === 0) {
+                    resultsDiv.innerHTML = '<li class="search-no-results">Aucun résultat trouvé</li>';
+                } else {
+                    resultsDiv.innerHTML = results.slice(0, 20).map(result => `
+                        <li class="search-result-item" onclick="handleSearchResult('${result.type}', '${result.id}')">
+                            <strong>${result.name}</strong>
+                            ${result.subtitle ? `<div style="font-size: 12px; color: #7F8C8D; margin-top: 2px;">${result.subtitle}</div>` : ''}
+                            <small><span class="search-result-category">${result.category}</span></small>
+                        </li>
+                    `).join('');
+                }
+
+                resultsDiv.classList.add('show');
+            } catch (error) {
+                console.error('Erreur de recherche:', error);
+                resultsDiv.innerHTML = '<li class="search-no-results">Erreur lors de la recherche</li>';
+                resultsDiv.classList.add('show');
+            }
+        };
+
+        window.handleSearchResult = function(type, id) {
+            const searchInput = document.getElementById('global-search');
+            const resultsDiv = document.getElementById('search-results');
+            
+            searchInput.value = '';
+            resultsDiv.classList.remove('show');
+
+            // Naviguer et charger le détail
+            if (type === 'contact') {
+                loadPage('prospection');
+                setTimeout(() => editContact(id), 500);
+            } else if (type === 'member') {
+                loadPage('equipe');
+                setTimeout(() => editMember(id), 500);
+            } else if (type === 'programme') {
+                loadPage('programmes');
+                setTimeout(() => editProgramme(id), 500);
+            } else if (type === 'concert') {
+                loadPage('concerts');
+                setTimeout(() => editConcert(id), 500);
+            }
+        };
+
+        // Ajouter l'écouteur de recherche
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('global-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    window.performGlobalSearch(e.target.value);
+                });
+
+                searchInput.addEventListener('blur', function() {
+                    setTimeout(() => {
+                        document.getElementById('search-results').classList.remove('show');
+                    }, 200);
+                });
+            }
+        });
 
         window.loadProspection();
     </script>
