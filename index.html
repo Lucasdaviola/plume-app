@@ -1047,6 +1047,267 @@
                 white-space: nowrap;
             }
         }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 15px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            table th, table td {
+                padding: 8px 4px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 10px;
+            }
+
+            header {
+                padding: 15px;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .header-left h1 {
+                font-size: 24px;
+            }
+
+            .header-left p {
+                font-size: 12px;
+            }
+
+            .search-container {
+                width: 100%;
+                max-width: 100%;
+                order: -1;
+            }
+
+            .search-input {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .search-results {
+                max-height: 250px;
+            }
+
+            .metric {
+                padding: 10px 15px;
+                min-width: auto;
+                flex: 1;
+                min-width: 80px;
+            }
+
+            .metric-label {
+                font-size: 10px;
+            }
+
+            .metric-value {
+                font-size: 18px;
+            }
+
+            nav ul {
+                flex-direction: row;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+
+            nav li {
+                flex: 1;
+                text-align: center;
+                min-width: auto;
+            }
+
+            nav a {
+                padding: 12px 8px;
+                font-size: 12px;
+            }
+
+            .content-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .content-header h2 {
+                font-size: 20px;
+            }
+
+            .content-header .btn {
+                width: 100%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            table th, table td {
+                padding: 6px 2px;
+            }
+
+            th {
+                font-size: 11px;
+            }
+
+            .btn {
+                padding: 6px 8px;
+                font-size: 11px;
+                margin: 2px;
+            }
+
+            .btn-secondary, .btn-danger {
+                padding: 4px 6px;
+                font-size: 10px;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .form-group {
+                width: 100%;
+            }
+
+            .status-select {
+                min-width: 80px;
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+
+            #formModal {
+                width: 95%;
+                max-height: 90vh;
+                margin: 10px auto;
+            }
+
+            .form-group textarea {
+                min-height: 80px;
+                font-size: 14px;
+            }
+
+            .empty-state {
+                padding: 30px 10px;
+            }
+
+            .empty-state-icon {
+                font-size: 40px;
+            }
+
+            .empty-state-icon + p {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 8px;
+            }
+
+            header {
+                padding: 10px;
+                gap: 8px;
+            }
+
+            .header-left h1 {
+                font-size: 20px;
+                margin-bottom: 2px;
+            }
+
+            .header-left p {
+                font-size: 11px;
+            }
+
+            .search-input {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .metric {
+                padding: 8px 10px;
+                min-width: 60px;
+            }
+
+            .metric-label {
+                font-size: 9px;
+            }
+
+            .metric-value {
+                font-size: 16px;
+            }
+
+            nav a {
+                padding: 10px 6px;
+                font-size: 11px;
+            }
+
+            .content-header h2 {
+                font-size: 18px;
+            }
+
+            .content-header .btn {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            table th, table td {
+                padding: 4px 1px;
+                font-size: 11px;
+            }
+
+            .btn {
+                padding: 5px 6px;
+                font-size: 10px;
+                margin: 1px;
+            }
+
+            .form-group label {
+                font-size: 12px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .status-select {
+                min-width: 70px;
+                padding: 4px 5px;
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body>
