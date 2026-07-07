@@ -87,11 +87,11 @@
             list-style: none;
             display: flex;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         nav li {
-            flex: 1;
-            min-width: 150px;
+            flex: 0 auto;
         }
 
         nav a {
@@ -134,11 +134,16 @@
 
         .content-header h2 {
             margin: 0;
+            flex: 0 auto;
         }
 
         .button-group {
             display: flex;
             gap: 10px;
+        }
+
+        .button-group .btn {
+            white-space: nowrap;
         }
 
         table {
@@ -742,11 +747,12 @@
             }
 
             nav ul {
-                flex-direction: column;
+                flex-direction: row;
+                justify-content: center;
             }
 
             nav li {
-                flex: none;
+                flex: 0 auto;
             }
 
             nav a {
@@ -767,17 +773,19 @@
             }
 
             .content-header {
-                flex-direction: column;
-                align-items: flex-start;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
             }
 
             .button-group {
-                width: 100%;
-                flex-direction: column;
+                display: flex;
+                gap: 10px;
+                flex-direction: row;
             }
 
-            .btn {
-                width: 100%;
+            .button-group .btn {
+                white-space: nowrap;
             }
         }
     </style>
